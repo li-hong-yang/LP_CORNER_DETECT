@@ -150,6 +150,33 @@ src/corner_detect.cpp.s:
 	$(MAKE) -f CMakeFiles/lp_corner_detect.dir/build.make CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.s
 .PHONY : src/corner_detect.cpp.s
 
+src/decode_utils.o: src/decode_utils.cpp.o
+
+.PHONY : src/decode_utils.o
+
+# target to build an object file
+src/decode_utils.cpp.o:
+	$(MAKE) -f CMakeFiles/lp_corner_detect.dir/build.make CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.o
+.PHONY : src/decode_utils.cpp.o
+
+src/decode_utils.i: src/decode_utils.cpp.i
+
+.PHONY : src/decode_utils.i
+
+# target to preprocess a source file
+src/decode_utils.cpp.i:
+	$(MAKE) -f CMakeFiles/lp_corner_detect.dir/build.make CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.i
+.PHONY : src/decode_utils.cpp.i
+
+src/decode_utils.s: src/decode_utils.cpp.s
+
+.PHONY : src/decode_utils.s
+
+# target to generate assembly for a file
+src/decode_utils.cpp.s:
+	$(MAKE) -f CMakeFiles/lp_corner_detect.dir/build.make CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.s
+.PHONY : src/decode_utils.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,6 +189,9 @@ help:
 	@echo "... src/corner_detect.o"
 	@echo "... src/corner_detect.i"
 	@echo "... src/corner_detect.s"
+	@echo "... src/decode_utils.o"
+	@echo "... src/decode_utils.i"
+	@echo "... src/decode_utils.s"
 .PHONY : help
 
 
