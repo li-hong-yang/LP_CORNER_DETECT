@@ -27,8 +27,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -Wall -Ofast -Wfatal-er
 file(GLOB_RECURSE CPP_FILE src/*.cpp) # 搜索出所有后缀名为".cpp"的文件
 
 
-aux_source_directory(src SRC_LIST)
-# file(GLOB SRC_LIST src/*.cpp)
+# aux_source_directory(src SRC_LIST)
+file(GLOB SRC_LIST src/*.cpp)
 
 add_executable(lp_corner_detect ${SRC_LIST})
 target_link_libraries(lp_corner_detect nvinfer cudart ${OpenCV_LIBS})

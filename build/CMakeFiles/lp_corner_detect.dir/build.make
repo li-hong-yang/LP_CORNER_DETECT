@@ -60,15 +60,15 @@ include CMakeFiles/lp_corner_detect.dir/flags.make
 CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.o: CMakeFiles/lp_corner_detect.dir/flags.make
 CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.o: ../src/corner_detect.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/root/project/LP_CORNER_DETECT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.o -c /root/project/LP_CORNER_DETECT/src/corner_detect.cpp
+	/usr/bin/x86_64-linux-gnu-g++-7  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.o -c /root/project/LP_CORNER_DETECT/src/corner_detect.cpp
 
 CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /root/project/LP_CORNER_DETECT/src/corner_detect.cpp > CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.i
+	/usr/bin/x86_64-linux-gnu-g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /root/project/LP_CORNER_DETECT/src/corner_detect.cpp > CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.i
 
 CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /root/project/LP_CORNER_DETECT/src/corner_detect.cpp -o CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.s
+	/usr/bin/x86_64-linux-gnu-g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /root/project/LP_CORNER_DETECT/src/corner_detect.cpp -o CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.s
 
 CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.o.requires:
 
@@ -84,15 +84,15 @@ CMakeFiles/lp_corner_detect.dir/src/corner_detect.cpp.o.provides.build: CMakeFil
 CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.o: CMakeFiles/lp_corner_detect.dir/flags.make
 CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.o: ../src/decode_utils.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/root/project/LP_CORNER_DETECT/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.o -c /root/project/LP_CORNER_DETECT/src/decode_utils.cpp
+	/usr/bin/x86_64-linux-gnu-g++-7  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.o -c /root/project/LP_CORNER_DETECT/src/decode_utils.cpp
 
 CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /root/project/LP_CORNER_DETECT/src/decode_utils.cpp > CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.i
+	/usr/bin/x86_64-linux-gnu-g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /root/project/LP_CORNER_DETECT/src/decode_utils.cpp > CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.i
 
 CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /root/project/LP_CORNER_DETECT/src/decode_utils.cpp -o CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.s
+	/usr/bin/x86_64-linux-gnu-g++-7 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /root/project/LP_CORNER_DETECT/src/decode_utils.cpp -o CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.s
 
 CMakeFiles/lp_corner_detect.dir/src/decode_utils.cpp.o.requires:
 
