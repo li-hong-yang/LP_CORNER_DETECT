@@ -1,3 +1,0 @@
-/root/project/LP_CORNER_DETECT/build/CMakeFiles/rebuild_cache.dir
-/root/project/LP_CORNER_DETECT/build/CMakeFiles/lp_corner_detect.dir
-/root/project/LP_CORNER_DETECT/build/CMakeFiles/edit_cache.dir
