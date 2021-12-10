@@ -230,18 +230,6 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
     int imgw = img.cols;
 
     for (int i = 0;i < output_size/det_size; i++) {
-
-        // if (i==0) 
-        // {
-        //     cout << output_buffer[i] << endl;
-        //     cout << output_buffer[i+1] << endl;
-        //     cout << output_buffer[i+2] << endl;
-        //     cout << output_buffer[i+3] << endl;
-        //     cout << output_buffer[i+4] << endl;
-        //     cout << output_buffer[i+5] << endl;
-        //     cout << output_buffer[i+6] << endl;
-
-        // }
         
         if (output_buffer[det_size * i + 5] <= conf_thresh) continue;
         Yolo::Detection det;
