@@ -116,14 +116,20 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
     int imgh = img.rows;
     int imgw = img.cols;
 
+    float fx = imgw/416.0;
+    float fy = imgh/416.0;
+
+
+    float* xyxy = new float[4];
+    float* cooners = new float[8];
+
     for (int i = 0;i < output_size/det_size; i++) {      
         if (output_buffer[det_size * i + 5] <= conf_thresh) continue;
         Yolo::Detection det;
         float loc[4];
         float priors[4];
         float pre[8];
-        float* xyxy;
-        float* cooners;
+       
 
         // vector<float> m1(output_buffer,output_buffer+4);
         // cout << m1[0] << endl;
@@ -132,8 +138,8 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
         memcpy(priors, (char*)decode_bbox+sizeof(float)*4*i, 4*sizeof(float));
         memcpy(pre, &output_buffer[det_size*i+6], 8*sizeof(float));
         
-        xyxy = DecodeBbox(loc,priors,variances,imgw,imgh);
-        cooners = DecodeCorner(pre,priors,variances);
+        DecodeBbox(loc,priors,variances,xyxy);
+        DecodeCorner(pre,priors,variances,cooners);
     
         // if (xyxy[0]<0 || xyxy[1]<0 || xyxy[2]<0 || xyxy[3] < 0) continue;
         // cout << xyxy[0] << endl;
@@ -190,6 +196,9 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
 
         }
     }
+
+    delete xyxy;
+    delete cooners;
    
     std::sort(dst.begin(), dst.end(), cmp);
     for (size_t m = 0; m < dst.size(); ++m) {
@@ -212,11 +221,11 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
 
     
     for (size_t j = 0; j < 1; j++) {
-        cv::Rect r = get_rect(res[j].bbox);
-        cv::rectangle(imgraw, r, cv::Scalar(0x27, 0xC1, 0x36), 2);
-        cv::putText(imgraw, "lp", cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
+        cv::Rect r = get_rect(res[j].bbox,fx,fy);
+        cv::rectangle(img, r, cv::Scalar(0x27, 0xC1, 0x36), 2);
+        cv::putText(img, "lp", cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
     }
-    cv::imwrite("lp.jpg", imgraw);
+    cv::imwrite("lp.jpg", img);
 
     // cout << res[0].corner[0] << endl;
     // cout << res[0].corner[1] << endl;

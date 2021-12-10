@@ -21,21 +21,18 @@ cv::Mat get_perspective_mat(float corner[])
  
 }
 
-cv::Rect get_rect(float bbox[4]) {
-    int x = int(bbox[0]);
-    int y = int(bbox[1]);
-    int w = int(bbox[2]-bbox[0]);
-    int h = int(bbox[3]-bbox[1]); 
+cv::Rect get_rect(float bbox[4],float fx,float fy) {
+    int x = int(bbox[0]*fx);
+    int y = int(bbox[1]*fy);
+    int w = int(bbox[2]*fx-bbox[0]*fx);
+    int h = int(bbox[3]*fy-bbox[1]*fy); 
     return cv::Rect(x,y,w,h);
 }
 
 
-float* DecodeCorner(float* loc,float* priors,vector<float>& variances)
+void DecodeCorner(float* loc,float* priors,vector<float>& variances,float* bbox)
 {
 
-
-
-    float* bbox = new float[8];
 
     bbox[0] = priors[0] + loc[0] * variances[0] * priors[2];
     bbox[1] = priors[1] + loc[1] * variances[0] * priors[3];
@@ -58,7 +55,6 @@ float* DecodeCorner(float* loc,float* priors,vector<float>& variances)
     bbox[5] *= 416;
     bbox[6] *= 416;
     bbox[7] *= 416;
-    return bbox;
     
 }
 
@@ -82,11 +78,9 @@ float iou(float lbox[4], float rbox[4]) {
 }
 
 
-
-float* DecodeBbox(float* loc,float* priors,vector<float>& variances,int w,int h)
+void DecodeBbox(float* loc,float* priors,vector<float>& variances,float* dst)
 {
-    float* bbox = new float[4];
-    float* dst = new float[4];
+    float bbox[4];
 
     bbox[0] = priors[0] + loc[0] * variances[0] * priors[2];
     bbox[1] = priors[1] + loc[1] * variances[0] * priors[3];
@@ -103,6 +97,5 @@ float* DecodeBbox(float* loc,float* priors,vector<float>& variances,int w,int h)
     dst[1] *= 416;
     dst[2] *= 416;
     dst[3] *= 416;
-    return dst;
     
 }

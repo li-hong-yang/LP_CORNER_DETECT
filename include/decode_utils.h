@@ -10,9 +10,9 @@
 using namespace std;
 
 cv::Mat get_perspective_mat(float corner[]);
-cv::Rect get_rect(float bbox[4]);
-float* DecodeBbox(float* loc,float* priors,vector<float>& variances,int w,int h);
-float* DecodeCorner(float* loc,float* priors,vector<float>& variances);
+cv::Rect get_rect(float bbox[4],float fx,float fy);
+void DecodeBbox(float* loc,float* priors,vector<float>& variances,float* dst);
+void DecodeCorner(float* loc,float* priors,vector<float>& variances,float* bbox);
 float iou(float lbox[4], float rbox[4]);
 bool cmp(const Yolo::Detection& a, const Yolo::Detection& b);
 #endif
