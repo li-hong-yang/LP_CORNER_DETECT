@@ -81,6 +81,9 @@
         "__functional_03": "cpp",
         "version": "cpp",
         "device_launch_parameters.h": "c",
-        "parallel_decode.h": "c"
+        "parallel_decode.h": "c",
+        "__bit_reference": "c",
+        "corner_detect.h": "c",
+        "logging.h": "c"
     }
 }

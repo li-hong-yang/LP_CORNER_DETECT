@@ -6,7 +6,6 @@
 #include "cuda_runtime_api.h"
 #include <device_launch_parameters.h>
 #include <iostream>
-#include <cmath>
 #include "corner_detect.h"
 
 
