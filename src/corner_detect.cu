@@ -8,7 +8,7 @@
 #include <iomanip>
 #include <cmath>
 #include "decode_utils.h"
-#include "parallel_decode.h"
+
 
 static Logger gLogger;
 
@@ -110,7 +110,7 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
 
     std::vector<Yolo::Detection> res;
     int det_size = 14;
-    std::vector<Yolo::Detection> dst;
+    
     cv::Mat img = cv::imread(img_name);
     cv::Mat imgraw;
     cv::resize(img,imgraw,cv::Size(416,416));
@@ -121,97 +121,56 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
     float fy = imgh/416.0;
 
 
-    float* xyxy = new float[4];
-    float* cooners = new float[8];
+    int nums = 7098;
+    int c = 14;
+    int maxoutobject = 100;
+    float conf_thres = 0.5;
 
-    for (int i = 0;i < output_size/det_size; i++) {      
-        if (output_buffer[det_size * i + 5] <= conf_thresh) continue;
-        Yolo::Detection det;
-        float loc[4];
-        float priors[4];
-        float pre[8];
-       
-
-        // vector<float> m1(output_buffer,output_buffer+4);
-        // cout << m1[0] << endl;
-
-        memcpy(loc, &output_buffer[det_size * i], 4*sizeof(float));
-        memcpy(priors, (char*)decode_bbox+sizeof(float)*4*i, 4*sizeof(float));
-        memcpy(pre, &output_buffer[det_size*i+6], 8*sizeof(float));
-        
-        DecodeBbox(loc,priors,variances,xyxy);
-        DecodeCorner(pre,priors,variances,cooners);
-    
-        // if (xyxy[0]<0 || xyxy[1]<0 || xyxy[2]<0 || xyxy[3] < 0) continue;
-        // cout << xyxy[0] << endl;
-        det.conf = output_buffer[det_size * i+5];
-        memcpy(&det.corner, &output_buffer[det_size * i+6], 8*sizeof(float));
-        memcpy(&det.bbox, xyxy, 4*sizeof(float));
-        memcpy(&det.corner, cooners, 8*sizeof(float));
-        dst.push_back(det);
-
-        if (i==0) 
-        {
-            // cout <<det.conf << endl;
-            // cout <<det.bbox[0] << endl;
-            // cout <<det.bbox[1] << endl;
-            // cout <<det.bbox[2] << endl;
-            // cout <<det.bbox[3] << endl;
+    float* gpu_input;
+    HANDLE_ERROR(cudaMalloc((void**)&gpu_input,   sizeof(float)*batch_size * output_size));
+    HANDLE_ERROR(cudaMemcpy(gpu_input,output_buffer,sizeof(float)*batch_size * output_size,cudaMemcpyHostToDevice));
 
 
-            // cout <<det.corner[0] << endl;
-            // cout <<det.corner[1] << endl;
+    float *output = new float[maxoutobject*13+1];
+    float* gpu_output;
+    HANDLE_ERROR(cudaMalloc((void**)&gpu_output, sizeof(float)*(maxoutobject*13+1)));
+
+    float* gpu_priors;
+    HANDLE_ERROR(cudaMalloc((void**)&gpu_priors,   sizeof(float)*nums*4));
+    HANDLE_ERROR(cudaMemcpy(gpu_priors,decode_bbox,sizeof(float)*(maxoutobject*13+1),cudaMemcpyHostToDevice));
+
+    float* gpu_variances;
+    HANDLE_ERROR(cudaMalloc((void**)&gpu_variances,   sizeof(float)*2));
+    HANDLE_ERROR(cudaMemcpy(gpu_variances,&variances,sizeof(float)*2,cudaMemcpyHostToDevice));
 
 
-            // cout << pre[0] << endl;
-            // cout << pre[1] << endl;
-            // cout << pre[2] << endl;
-            // cout << pre[3] << endl;
-            // cout << pre[4] << endl;
-            // cout << pre[5] << endl;
-            // cout << pre[6] << endl;
-            // cout << pre[7] << endl;
 
 
-            // cout << cooners[0] << endl;
-            // cout << cooners[1] << endl;
-            // cout << cooners[2] << endl;
-            // cout << cooners[3] << endl;
-            // cout << cooners[4] << endl;
-            // cout << cooners[5] << endl;
-            // cout << cooners[6] << endl;
-            // cout << cooners[7] << endl;
 
-            // cout << loc[i+3] << endl;
 
-            // cout << priors[i+0] << endl;
-            // cout << priors[i+1] << endl;
-            // cout << priors[i+2] << endl;
-            // cout << priors[i+3] << endl;
+    int threadNum = getThreadNum();
+    int blockNum = (nums -0.5)/threadNum +1;
 
-            // cout << xyxy[0] << endl;
-            // cout << xyxy[i+1] << endl;
-            // cout << xyxy[i+2] << endl;
-            // cout << xyxy[i+3] << endl;
-            // cout << output_buffer[det_size * i+5] << endl;
+    // const float *input, float *output,int nums,float conf_thres,int outputElem,int c,int maxoutobject,float* priors,float* variances
 
-        }
-    }
+    CalDetection <<<blockNum,threadNum>>>(gpu_input,gpu_output,nums,conf_thres,100,c,maxoutobject,gpu_priors,gpu_variances);
 
-    delete xyxy;
-    delete cooners;
+    HANDLE_ERROR(cudaMemcpy(output,gpu_output,sizeof(float)*(maxoutobject*13+1),cudaMemcpyDeviceToHost));
+
+
+    // std::vector<Yolo::Detection> dst(output,output+sizeof(float)*(maxoutobject*13+1));
    
-    std::sort(dst.begin(), dst.end(), cmp);
-    for (size_t m = 0; m < dst.size(); ++m) {
-        auto& item = dst[m];
-        res.push_back(item);
-        for (size_t n = m + 1; n < dst.size(); ++n) {
-            if (iou(item.bbox, dst[n].bbox) > nms_thresh) {
-                dst.erase(dst.begin() + n);
-                --n;
-            }
-        }
-    }
+    // std::sort(dst.begin(), dst.end(), cmp);
+    // for (size_t m = 0; m < dst.size(); ++m) {
+    //     auto& item = dst[m];
+    //     res.push_back(item);
+    //     for (size_t n = m + 1; n < dst.size(); ++n) {
+    //         if (iou(item.bbox, dst[n].bbox) > nms_thresh) {
+    //             dst.erase(dst.begin() + n);
+    //             --n;
+    //         }
+    //     }
+    // }
 
     // cout << res.size() << endl;
     // cout << res[0].bbox[0] << endl;
@@ -221,12 +180,12 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
 
 
     
-    for (size_t j = 0; j < 1; j++) {
-        cv::Rect r = get_rect(res[j].bbox,fx,fy);
-        cv::rectangle(img, r, cv::Scalar(0x27, 0xC1, 0x36), 2);
-        cv::putText(img, "lp", cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
-    }
-    cv::imwrite("lp.jpg", img);
+    // for (size_t j = 0; j < 1; j++) {
+    //     cv::Rect r = get_rect(res[j].bbox,fx,fy);
+    //     cv::rectangle(img, r, cv::Scalar(0x27, 0xC1, 0x36), 2);
+    //     cv::putText(img, "lp", cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
+    // }
+    // cv::imwrite("lp.jpg", img);
 
     // cout << res[0].corner[0] << endl;
     // cout << res[0].corner[1] << endl;
@@ -237,13 +196,13 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
     // cout << res[0].corner[6] << endl;
     // cout << res[0].corner[7] << endl;
 
-    cv::Mat pers_img;
-    cv::Mat out_img;
-    pers_img = get_perspective_mat(res[0].corner);
-    cv::warpPerspective(imgraw,out_img,pers_img,cv::Size(94,24));
+    // cv::Mat pers_img;
+    // cv::Mat out_img;
+    // pers_img = get_perspective_mat(res[0].corner);
+    // cv::warpPerspective(imgraw,out_img,pers_img,cv::Size(94,24));
 
-    cv::imwrite("pers_lp.jpg", out_img);
-    cout << "save_done" << endl;
+    // cv::imwrite("pers_lp.jpg", out_img);
+    // cout << "save_done" << endl;
 
 
 

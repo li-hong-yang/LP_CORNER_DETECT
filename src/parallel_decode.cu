@@ -1,22 +1,9 @@
-#ifndef _PARALLEL_DECODE_H
-#define _PARALLEL_DECODE_H
-#include <stdio.h>
-#include <stdlib.h>
-#include "cuda_runtime_api.h"
-#include <device_launch_parameters.h>
-#include <cmath>
 #include "parallel_decode.h"
-#include "corner_detect.h"
 
 
 
 
-
-namespace nvinfer1
-{
-
-    
-static void HandleError(cudaError_t err,
+void HandleError(cudaError_t err,
                         const char *file,
                         int line)
                         {
@@ -31,6 +18,8 @@ static void HandleError(cudaError_t err,
 #define HANDLE_ERROR(err) (HandleError(err, __FILE__, __LINE__))
 
 
+namespace nvinfer1
+{
 
 __global__ void CalDetection(const float *input, float *output,int nums,float conf_thres,int outputElem,int c,int maxoutobject,float* priors,float* variances)
 {   //  noElements: feature_map_h*feature_map_w  netheight:608 maxoutobject:1000 classes:80 outputElem:6*1000+1
@@ -90,4 +79,3 @@ int getThreadNum()
 }
 
 
-#endif

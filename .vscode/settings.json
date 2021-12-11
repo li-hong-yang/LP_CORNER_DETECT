@@ -79,6 +79,8 @@
         "__config": "cpp",
         "stack": "cpp",
         "__functional_03": "cpp",
-        "version": "cpp"
+        "version": "cpp",
+        "device_launch_parameters.h": "c",
+        "parallel_decode.h": "c"
     }
 }

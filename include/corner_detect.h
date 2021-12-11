@@ -8,9 +8,9 @@
 #include <cmath>
 #include "cuda_utils.h"
 #include "logging.h"
-using namespace std;
 #include <vector>
 #include "parallel_decode.h"
+using namespace std;
 
 
 
