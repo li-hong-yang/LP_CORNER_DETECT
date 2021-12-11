@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <cmath>
 #include "decode_utils.h"
+#include "parallel_decode.h"
 
 static Logger gLogger;
 

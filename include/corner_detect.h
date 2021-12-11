@@ -10,6 +10,7 @@
 #include "logging.h"
 using namespace std;
 #include <vector>
+#include "parallel_decode.h"
 
 
 

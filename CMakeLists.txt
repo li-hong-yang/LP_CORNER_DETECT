@@ -24,11 +24,13 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -Wall -Ofast -Wfatal-errors -D_MWAITXINTRIN_H_INCLUDED -Wno-error=deprecated-declarations -Wno-deprecated-declarations -DOCRTEST")
 
+cuda_add_library(myplugins SHARED ${PROJECT_SOURCE_DIR}/src/parallel_decode.cu )
 file(GLOB_RECURSE CPP_FILE src/*.cpp) # 搜索出所有后缀名为".cpp"的文件
 
 
 # aux_source_directory(src SRC_LIST)
-file(GLOB SRC_LIST src/*.cpp)
+file(GLOB SRC_CPP src/*.cpp)
 
-add_executable(lp_corner_detect ${SRC_LIST})
-target_link_libraries(lp_corner_detect nvinfer cudart ${OpenCV_LIBS})
+
+add_executable(lp_corner_detect ${SRC_CPP})
+target_link_libraries(lp_corner_detect nvinfer cudart ${OpenCV_LIBS} myplugins)
