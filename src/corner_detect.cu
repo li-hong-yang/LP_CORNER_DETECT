@@ -51,12 +51,10 @@ CornerDetect::CornerDetect(const std::string & engine_name,string& bbox)
         if (engine->bindingIsInput(bi) == true)
         {
             inputIndex = bi;
-            // printf("Binding %d (%s): Input.\n", bi, engine->getBindingName(bi));
         }
         else
         {
             outputIndex = bi;
-            // printf("Binding %d (%s): Output.\n", bi, engine->getBindingName(bi));
         }
     }
     assert(inputIndex == 0);
@@ -117,8 +115,6 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
 
    
     
-    std::vector<Yolo::Detection> res; 
-
     cv::Mat img = cv::imread(img_name);
     cv::Mat imgraw;
     cv::resize(img,imgraw,cv::Size(416,416));
@@ -128,18 +124,18 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
     float fx = imgw/416.0;
     float fy = imgh/416.0;
 
+    // cuda kernel infer 
     HANDLE_ERROR(cudaMemcpy(gpu_input,output_buffer,sizeof(float)*batch_size * output_size,cudaMemcpyHostToDevice));  
     HANDLE_ERROR(cudaMemcpy(gpu_priors,decode_bbox,sizeof(float)*nums*4,cudaMemcpyHostToDevice));
     int threadNum = getThreadNum();
     int blockNum = (nums -0.5)/threadNum +1;
-
-    // const float *input, float *output,int nums,float conf_thres,int outputElem,int c,int maxoutobject,float* priors,float* variances
     CalDetection <<<blockNum,threadNum>>>(gpu_input,gpu_output,nums,conf_thres,nums,c,maxoutobject,gpu_priors,gpu_variances);
-
     HANDLE_ERROR(cudaMemcpy(output,gpu_output,sizeof(float)*(maxoutobject*13+1),cudaMemcpyDeviceToHost));
 
-
+    // parse results acording Yolo::Detection format
+    std::vector<Yolo::Detection> res;
     std::vector<Yolo::Detection> dst;
+    printf("Fill conf condition num is:%d\n",int(output[maxoutobject*13]));
 
     for (int i=0;i<int(output[maxoutobject*13]);++i)
     {
@@ -150,10 +146,8 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
         
         dst.push_back(tmp);     
     }
-
-
-    // std::vector<Yolo::Detection> dst(output,output+sizeof(float)*(maxoutobject*13+1));
-   
+    
+    // nms
     std::sort(dst.begin(), dst.end(), cmp);
     for (size_t m = 0; m < dst.size(); ++m) {
         auto& item = dst[m];
@@ -165,15 +159,8 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
             }
         }
     }
-
-    // cout << res.size() << endl;
-    cout << res[0].bbox[0] << endl;
-    cout << res[0].bbox[1] << endl;
-    cout << res[0].bbox[2] << endl;
-    cout << res[0].bbox[3] << endl;
-
-
-    
+   
+    //  save img with bbox
     for (size_t j = 0; j < 1; j++) {
         cv::Rect r = get_rect(res[j].bbox,fx,fy);
         cv::rectangle(img, r, cv::Scalar(0x27, 0xC1, 0x36), 2);
@@ -181,29 +168,13 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
     }
     cv::imwrite("lp.jpg", img);
 
-    // cout << res[0].corner[0] << endl;
-    // cout << res[0].corner[1] << endl;
-    // cout << res[0].corner[2] << endl;
-    // cout << res[0].corner[3] << endl;
-    // cout << res[0].corner[4] << endl;
-    // cout << res[0].corner[5] << endl;
-    // cout << res[0].corner[6] << endl;
-    // cout << res[0].corner[7] << endl;
-
+    //  save perspective_img
     cv::Mat pers_img;
     cv::Mat out_img;
     pers_img = get_perspective_mat(res[0].corner);
     cv::warpPerspective(imgraw,out_img,pers_img,cv::Size(94,24));
-
     cv::imwrite("pers_lp.jpg", out_img);
     cout << "save_done" << endl;
-
-
-
-
-
-
-
 
 }
 
@@ -224,6 +195,8 @@ CornerDetect::~CornerDetect()
     cudaStreamDestroy(stream);
     CUDA_CHECK(cudaFree(buffers[0]));
     CUDA_CHECK(cudaFree(buffers[1]));
+
+
     CUDA_CHECK(cudaFree(gpu_input));
     CUDA_CHECK(cudaFree(gpu_output));
     CUDA_CHECK(cudaFree(gpu_priors));

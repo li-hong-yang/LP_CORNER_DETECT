@@ -17,19 +17,6 @@ using namespace std;
 
 namespace Yolo
 {
-    static constexpr int CHECK_COUNT = 3;
-    static constexpr float IGNORE_THRESH = 0.1f;
-    struct YoloKernel
-    {
-        int width;
-        int height;
-        float anchors[CHECK_COUNT * 2];
-    };
-    static constexpr int MAX_OUTPUT_BBOX_COUNT = 1000;
-    static constexpr int CLASS_NUM = 1;
-    static constexpr int INPUT_H = 416;  // yolov5's input height and width must be divisible by 32.
-    static constexpr int INPUT_W = 416;
-
     static constexpr int LOCATIONS = 4;
     static constexpr int CORNERS = 8;
     struct alignas(float) Detection {

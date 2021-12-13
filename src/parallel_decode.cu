@@ -106,12 +106,10 @@ int getThreadNum()
 {
     cudaDeviceProp prop;
     int count;
-
     HANDLE_ERROR(cudaGetDeviceCount(&count));
-    printf("Gpu Num: %d\n",count);
     HANDLE_ERROR(cudaGetDeviceProperties(&prop,0));
-    printf("Max Thread Num: %d\n",prop.maxThreadsPerBlock);
-    printf("Max Grid Dimensions: %d %d %d\n",prop.maxGridSize[0],prop.maxGridSize[1],prop.maxGridSize[2]);
+    // printf("Max Thread Num: %d\n",prop.maxThreadsPerBlock);
+    // printf("Max Grid Dimensions: %d %d %d\n",prop.maxGridSize[0],prop.maxGridSize[1],prop.maxGridSize[2]);
 
     return prop.maxThreadsPerBlock;
 
