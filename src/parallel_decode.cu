@@ -21,11 +21,9 @@ void HandleError(cudaError_t err,
 namespace nvinfer1
 {
 
- __device__ float Logist(float data) { return 1.0f / (1.0f + expf(-data)); };
 
 __global__ void CalDetection(const float *input, float *output,int nums,float conf_thres,int outputElem,int c,int maxoutobject,float* priors,float* variances)
-{   //  noElements: feature_map_h*feature_map_w  netheight:608 maxoutobject:1000 classes:80 outputElem:6*1000+1
-    // 每个线程处理一个featur_map中的一个点的数据
+{   
 
     int idx = threadIdx.x + blockDim.x * blockIdx.x;
     if (idx >= nums) return;
@@ -34,7 +32,6 @@ __global__ void CalDetection(const float *input, float *output,int nums,float co
 
     float *res_count = output+maxoutobject*13; // 预留 1000个位置
     int count = (int)atomicAdd(res_count, 1); // cuda原子操作 计算(old + val)
-    // printf("%d\n",count);
     
     if (count >= maxoutobject) return;
     char* data = (char *)output + count * sizeof(Yolo::Detection);
@@ -97,19 +94,10 @@ __global__ void CalDetection(const float *input, float *output,int nums,float co
         printf("%f\n",det->corner[6]);
         printf("%f\n",det->corner[7]);
 
-        // printf("%f\n",x);
-        // printf("%f\n",y);
-        // printf("%f\n",w);
-        // printf("%f\n",h);
-
         printf("==variances==\n");
         printf("%f\n", variances[0]);
         printf("%f\n", variances[1]);
 
-        printf("==c==\n");
-        printf("%f\n", expf(input[idx*c+2] * variances[1]));
-        printf("%f\n", expf(input[idx*c+3] * variances[1]));
-        // printf("%3f",exp((-4.89* 0.2)));
     }
 };
 

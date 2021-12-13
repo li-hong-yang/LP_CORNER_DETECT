@@ -1,6 +1,6 @@
 #include "decode_utils.h"
 
-
+// get_perspective_mat
 cv::Mat get_perspective_mat(float corner[])
 {
 	cv::Point2f src_points[] = { 
@@ -21,6 +21,7 @@ cv::Mat get_perspective_mat(float corner[])
  
 }
 
+// get init img bbox (x,y,w,h)
 cv::Rect get_rect(float bbox[4],float fx,float fy) {
     int x = int(bbox[0]*fx);
     int y = int(bbox[1]*fy);
@@ -29,7 +30,7 @@ cv::Rect get_rect(float bbox[4],float fx,float fy) {
     return cv::Rect(x,y,w,h);
 }
 
-
+// calculate corner relative 416
 void DecodeCorner(float* loc,float* priors,vector<float>& variances,float* bbox)
 {
 
@@ -58,6 +59,7 @@ void DecodeCorner(float* loc,float* priors,vector<float>& variances,float* bbox)
     
 }
 
+// Yolo::Detectionc sort rule 
 bool cmp(const Yolo::Detection& a, const Yolo::Detection& b) {
     return a.conf > b.conf;
 }
@@ -77,7 +79,7 @@ float iou(float lbox[4], float rbox[4]) {
     return interBoxS / (lbox[2] * lbox[3] + rbox[2] * rbox[3] - interBoxS);
 }
 
-
+// calculate corner relative 416
 void DecodeBbox(float* loc,float* priors,vector<float>& variances,float* dst)
 {
     float bbox[4];
@@ -87,6 +89,8 @@ void DecodeBbox(float* loc,float* priors,vector<float>& variances,float* dst)
 
     bbox[2] = priors[2] * exp(loc[2]*variances[1]);
     bbox[3] = priors[3] * exp(loc[3]*variances[1]);
+
+    
 
     dst[0] = (bbox[0] - bbox[2]/2.0);
     dst[1] = (bbox[1] - bbox[3]/2.0);

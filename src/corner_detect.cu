@@ -16,11 +16,12 @@ using namespace nvinfer1;
 using namespace std;
 
 // 加载模型，分配显存和内存
-CornerDetect::CornerDetect(const std::string & engine_name)
+CornerDetect::CornerDetect(const std::string & engine_name,string& bbox)
 {
-
+    // select device
     cudaSetDevice(device);
 
+    // load TRT-ENGINE
     std::ifstream file(engine_name, std::ios::binary);
     assert(file.good() == true);
     char *trtModelStream = nullptr;
@@ -32,7 +33,8 @@ CornerDetect::CornerDetect(const std::string & engine_name)
     assert(trtModelStream);
     file.read(trtModelStream, size);
     file.close();
-    
+
+    // build trt context
     runtime = createInferRuntime(gLogger);
     assert(runtime != nullptr);
     engine = runtime->deserializeCudaEngine(trtModelStream, size);
@@ -42,6 +44,7 @@ CornerDetect::CornerDetect(const std::string & engine_name)
     delete[] trtModelStream;
     assert(engine->getNbBindings() == 2);
 
+    // set input output idx
     int inputIndex, outputIndex;
     for (int bi = 0; bi < engine->getNbBindings(); bi++)
     {
@@ -56,9 +59,6 @@ CornerDetect::CornerDetect(const std::string & engine_name)
             // printf("Binding %d (%s): Output.\n", bi, engine->getBindingName(bi));
         }
     }
-
-    // const int inputIndex = engine->getBindingIndex("input");
-    // const int outputIndex = engine->getBindingIndex("output");
     assert(inputIndex == 0);
     assert(outputIndex == 1);
     // Create GPU buffers on device
@@ -70,6 +70,23 @@ CornerDetect::CornerDetect(const std::string & engine_name)
     assert(data != nullptr);
     output_buffer = new float[batch_size * output_size];  
     assert(output_buffer != nullptr);  
+
+
+    // read bbox_priors
+    decode_bbox = new float[7098*4];
+    assert(decode_bbox != nullptr);
+    std::ifstream in(bbox, std::ios::in | std::ios::binary); 
+    in.read((char *)decode_bbox, sizeof(float)*7098*4);
+    in.close();
+
+
+    // malloc related memory 
+    output = new float[maxoutobject*13+1];
+    HANDLE_ERROR(cudaMalloc((void**)&gpu_input,   sizeof(float)*batch_size * output_size));
+    HANDLE_ERROR(cudaMalloc((void**)&gpu_output, sizeof(float)*(maxoutobject*13+1)));
+    HANDLE_ERROR(cudaMalloc((void**)&gpu_priors,   sizeof(float)*nums*4));
+    HANDLE_ERROR(cudaMalloc((void**)&gpu_variances,   sizeof(float)*2));
+    HANDLE_ERROR(cudaMemcpy(gpu_variances,variances,sizeof(float)*2,cudaMemcpyHostToDevice));
 }
 
 
@@ -95,22 +112,13 @@ void CornerDetect::preprocess(string& img_name)
 }
 
 
-void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thresh,string& bbox)
+void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thresh)
 {
 
-    float* decode_bbox = new float[7098*4];
-
-
-    assert(decode_bbox != nullptr);
-    float variances[2] = {0.1,0.2};
-
-    std::ifstream in(bbox, std::ios::in | std::ios::binary); 
-    in.read((char *)decode_bbox, sizeof(float)*7098*4);
-
-
-    std::vector<Yolo::Detection> res;
-    int det_size = 14;
+   
     
+    std::vector<Yolo::Detection> res; 
+
     cv::Mat img = cv::imread(img_name);
     cv::Mat imgraw;
     cv::resize(img,imgraw,cv::Size(416,416));
@@ -120,39 +128,12 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
     float fx = imgw/416.0;
     float fy = imgh/416.0;
 
-
-    int nums = 7098;
-    int c = 14;
-    int maxoutobject = 7098;
-    float conf_thres = 0.3;
-
-    float* gpu_input;
-    HANDLE_ERROR(cudaMalloc((void**)&gpu_input,   sizeof(float)*batch_size * output_size));
-    HANDLE_ERROR(cudaMemcpy(gpu_input,output_buffer,sizeof(float)*batch_size * output_size,cudaMemcpyHostToDevice));
-
-
-    float *output = new float[maxoutobject*13+1];
-    float* gpu_output;
-    HANDLE_ERROR(cudaMalloc((void**)&gpu_output, sizeof(float)*(maxoutobject*13+1)));
-
-    float* gpu_priors;
-    HANDLE_ERROR(cudaMalloc((void**)&gpu_priors,   sizeof(float)*nums*4));
+    HANDLE_ERROR(cudaMemcpy(gpu_input,output_buffer,sizeof(float)*batch_size * output_size,cudaMemcpyHostToDevice));  
     HANDLE_ERROR(cudaMemcpy(gpu_priors,decode_bbox,sizeof(float)*nums*4,cudaMemcpyHostToDevice));
-
-    float* gpu_variances;
-    HANDLE_ERROR(cudaMalloc((void**)&gpu_variances,   sizeof(float)*2));
-    HANDLE_ERROR(cudaMemcpy(gpu_variances,variances,sizeof(float)*2,cudaMemcpyHostToDevice));
-
-
-
-
-
-
     int threadNum = getThreadNum();
     int blockNum = (nums -0.5)/threadNum +1;
 
     // const float *input, float *output,int nums,float conf_thres,int outputElem,int c,int maxoutobject,float* priors,float* variances
-
     CalDetection <<<blockNum,threadNum>>>(gpu_input,gpu_output,nums,conf_thres,nums,c,maxoutobject,gpu_priors,gpu_variances);
 
     HANDLE_ERROR(cudaMemcpy(output,gpu_output,sizeof(float)*(maxoutobject*13+1),cudaMemcpyDeviceToHost));
@@ -221,6 +202,9 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
 
 
 
+
+
+
 }
 
 void CornerDetect::infer()
@@ -240,6 +224,10 @@ CornerDetect::~CornerDetect()
     cudaStreamDestroy(stream);
     CUDA_CHECK(cudaFree(buffers[0]));
     CUDA_CHECK(cudaFree(buffers[1]));
+    CUDA_CHECK(cudaFree(gpu_input));
+    CUDA_CHECK(cudaFree(gpu_output));
+    CUDA_CHECK(cudaFree(gpu_priors));
+    CUDA_CHECK(cudaFree(gpu_variances));
     // Destroy the engine
     context->destroy();
     engine->destroy();
@@ -247,8 +235,10 @@ CornerDetect::~CornerDetect()
 
 
 
-    delete [] data;
-    delete [] output_buffer;
+    delete data;
+    delete output_buffer;
+    delete decode_bbox;
+    delete output;
     
     
 }
@@ -258,12 +248,13 @@ CornerDetect::~CornerDetect()
 
 int main()
 {
-    CornerDetect pred("../data/CORNER-NEW-MERGE.engine");
     string name = "../data/0.jpg"; 
-    string bbox_name = "../data/bbox.bin";                      
+    string bbox_name = "../data/bbox.bin";      
+    CornerDetect pred("../data/CORNER-NEW-MERGE.engine",bbox_name);
+                    
     pred.preprocess(name);  
     pred.infer();
-    pred.postprocess(name,0.3,0.5,bbox_name);                
+    pred.postprocess(name,0.3,0.5);                
     return 0;
 }
 

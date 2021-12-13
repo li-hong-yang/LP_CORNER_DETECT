@@ -4,9 +4,7 @@ project(LP_CORNER_DETECT)
 
 option(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_BUILD_TYPE Debug)
-
-add_definitions(-w)
+# set(CMAKE_BUILD_TYPE Debug)
 
 find_package(OpenCV)
 include_directories(${OpenCV_INCLUDE_DIRS})
@@ -25,8 +23,8 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86)")
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -Wall -Ofast -Wfatal-errors -D_MWAITXINTRIN_H_INCLUDED -Wno-error=deprecated-declarations -Wno-deprecated-declarations -DOCRTEST")
-
-
+# set(CUDA_NVCC_FLAGS -gencode arch=compute_52,code=sm_52;-G;-g)
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC  -Ofast -Wfatal-errors -D_MWAITXINTRIN_H_INCLUDED -Wno-error=deprecated-declarations -Wno-deprecated-declarations -DOCRTEST")
 file(GLOB_RECURSE CPP_FILE src/*.cpp) # 搜索出所有后缀名为".cpp"的文件
 
 file(GLOB SRC_CPP src/*.cpp)
