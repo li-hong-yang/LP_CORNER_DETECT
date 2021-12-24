@@ -222,7 +222,7 @@ CornerDetect::~CornerDetect()
 
 int main()
 {
-    string name = "../data/0.jpg"; 
+    string name = "../data/test0_0.jpg"; 
     string bbox_name = "../data/bbox.bin";      
     CornerDetect pred("../data/CORNER-NEW-MERGE.engine",bbox_name);
                     
