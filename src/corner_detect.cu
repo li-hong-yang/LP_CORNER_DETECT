@@ -130,6 +130,7 @@ void CornerDetect::postprocess(string& img_name,float conf_thresh,float nms_thre
     HANDLE_ERROR(cudaMemcpy(gpu_priors,decode_bbox,sizeof(float)*nums*4,cudaMemcpyHostToDevice));
     int threadNum = getThreadNum();
     int blockNum = (nums -0.5)/threadNum +1;
+    cudaMemset(gpu_output + maxoutobject*13, 0, sizeof(float));
     CalDetection <<<blockNum,threadNum>>>(gpu_input,gpu_output,nums,conf_thres,nums,c,maxoutobject,gpu_priors,gpu_variances);
     HANDLE_ERROR(cudaMemcpy(output,gpu_output,sizeof(float)*(maxoutobject*13+1),cudaMemcpyDeviceToHost));
 
