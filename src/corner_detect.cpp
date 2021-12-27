@@ -278,10 +278,20 @@ int main()
 {
     CornerDetect pred("../data/CORNER-NEW-MERGE.engine");
     string name = "../data/0.jpg"; 
-    string bbox_name = "../data/bbox.bin";                      
-    pred.preprocess(name);  
-    pred.infer();
-    pred.postprocess(name,0.3,0.5,bbox_name);                
+    string bbox_name = "../data/bbox.bin";   
+
+
+    for (int i=0;i<1000;++i)
+    {
+        pred.preprocess(name);  
+        pred.infer();
+        std::chrono::time_point<std::chrono::steady_clock> start = std::chrono::steady_clock::now();
+        pred.postprocess(name,0.3,0.5,bbox_name);
+        std::chrono::time_point<std::chrono::steady_clock> end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed = (end - start);
+        std::cout << "Elapsed time: " << elapsed.count() << "s" << std::endl;         
+        }                   
+          
     return 0;
 }
 
