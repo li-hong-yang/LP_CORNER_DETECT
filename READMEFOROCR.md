@@ -21,4 +21,4 @@ make
 /home/nunova/tensorrt_tar/TensorRT-7.0.0.11/bin/trtexec --explicitBatch --onnx=data/resnet181d.onnx  --saveEngine=data/resnet181d.engine --fp16
 
 
-/home/nunova/tensorrt_tar/TensorRT-7.0.0.11/bin/trtexec --onnx=CORNER-NEW-MERGE.onnx  --saveEngine=CORNER-NEW-MERGE.engine --fp16
+/home/nunova/tensorrt_tar/TensorRT-7.0.0.11/bin/trtexec --onnx=data/mobile0.25.onnx  --saveEngine=mobile0.25.engine --fp16

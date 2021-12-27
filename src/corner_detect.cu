@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <cmath>
 #include "decode_utils.h"
+#include <chrono>
 
 // test odasf
 
@@ -221,15 +222,42 @@ CornerDetect::~CornerDetect()
 
 
 
-int main()
+int main(int argc, char** argv)
 {
-    string name = "../data/test0_0.jpg"; 
-    string bbox_name = "../data/bbox.bin";      
-    CornerDetect pred("../data/CORNER-NEW-MERGE.engine",bbox_name);
+    string name;
+    string bbox_name;
+    string engin_name;
+
+
+    if (std::string(argv[1]) == "mobile")
+    {
+        name = "../data/test0_0.jpg"; 
+        bbox_name = "../data/mobile0.25.bin";      
+        engin_name = "../data/mobile0.25.engine";
+    }
+    else
+    {
+        name = "../data/test0_0.jpg"; 
+        bbox_name = "../data/bbox.bin";
+        engin_name = "../data/CORNER-NEW-MERGE.engine";      
+        
+    };
+
+    CornerDetect pred(engin_name,bbox_name);
+   
+
+    for (int i=0;i<1;++i)
+    {
+        pred.preprocess(name);  
+        pred.infer();
+        std::chrono::time_point<std::chrono::steady_clock> start = std::chrono::steady_clock::now();
+        pred.postprocess(name,0.3,0.5);
+        std::chrono::time_point<std::chrono::steady_clock> end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed = (end - start);
+        std::cout << "Elapsed time: " << elapsed.count() << "s" << std::endl;       
+    }
                     
-    pred.preprocess(name);  
-    pred.infer();
-    pred.postprocess(name,0.3,0.5);                
+            
     return 0;
 }
 
