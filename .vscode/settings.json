@@ -2,6 +2,7 @@
     "C_Cpp.default.configurationProvider": "numaru.vscode-cmake-lite",
     "cmake.sourceDirectory": "${workspaceFolder}",
     "files.associations": {
+        "": "",
         "*.cu": "c",
         "__nullptr": "cpp",
         "iosfwd": "cpp",
@@ -77,6 +78,7 @@
         "dirent.h": "c",
         "__config": "cpp",
         "stack": "cpp",
-        "__functional_03": "cpp"
+        "__functional_03": "cpp",
+        "version": "cpp"
     }
 }

@@ -9,6 +9,9 @@
 #include "cuda_utils.h"
 #include "logging.h"
 using namespace std;
+#include <vector>
+
+
 
 
 

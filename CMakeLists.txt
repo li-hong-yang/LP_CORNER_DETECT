@@ -24,5 +24,5 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC -Wall -Ofast -Wfatal-errors -D_MWAITXINTRIN_H_INCLUDED -Wno-error=deprecated-declarations -Wno-deprecated-declarations -DOCRTEST")
 
-add_executable(lp_corner_detect ${PROJECT_SOURCE_DIR}/src/corner_detect.cpp)
+add_executable(lp_corner_detect ${PROJECT_SOURCE_DIR}/src/corner_detect.cpp ${PROJECT_SOURCE_DIR}/src/decode_utils.cpp)
 target_link_libraries(lp_corner_detect nvinfer cudart ${OpenCV_LIBS})
